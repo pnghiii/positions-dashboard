@@ -1,0 +1,50 @@
+HƯỚNG DẪN CẬP NHẬT VÀ TRIỂN KHAI
+==================================
+
+Cấu trúc thư mục
+-----------------
+index.html                  Trang chọn chương trình
+ausbildung/index.html       Dashboard Ausbildung (98 vị trí)
+18b-19c-16d/index.html      Dashboard §18b, 19c, 16d
+alma-logo.png               Logo dùng cho phần đầu trang
+alma-logo-white.png         Logo dùng cho phần chân trang
+generate_dashboards.py      Script cập nhật dữ liệu cho cả hai dashboard
+
+Mỗi dashboard tự chứa toàn bộ dữ liệu vị trí ngay trong file index.html,
+không cần file CSV rời.
+
+Lưu ý: dashboard §18b, 19c, 16d hiện dùng cấu trúc cột tiếng Việt riêng
+(Năm, Ngày đăng, ID, Tinh trạng, Ngành, Vị trí, Brochure, Loại hình doanh
+nghiệp, Thành phố, Bang, Chủ Doanh nghiệp Việt/Đức, Yêu cầu chính,
+Additional notes, Trình độ tiếng Đức, Thời gian bắt đầu, Lương cứng trước
+thuế, Lương cứng sau thuế, Phúc lợi Thưởng & Ghi chú, Nhà ở, Giá thuê nhà,
+Thời gian làm việc, Ngày nghỉ, Số ngày nghỉ phép, Chi phí sinh hoạt hằng
+tháng), khác với dashboard Ausbildung vẫn dùng cấu trúc cột cũ. Script đã
+được cập nhật để đọc đúng cả hai cấu trúc cùng lúc từ cùng một file Excel.
+
+Cột Brochure có thể là link chèn trực tiếp, công thức HYPERLINK, hoặc dán
+thẳng đường dẫn Google Drive, script đều đọc được cả ba kiểu.
+
+Bước cập nhật dữ liệu
+----------------------
+1. Trong Google Sheet, chọn File, sau đó Download, chọn định dạng
+   Microsoft Excel (.xlsx). Tải về toàn bộ workbook (không phải từng sheet
+   riêng lẻ).
+2. Mở terminal tại thư mục chứa các file trên, chạy lệnh sau, thay đường
+   dẫn file cho đúng với file vừa tải về:
+
+   python3 generate_dashboards.py --xlsx "duong_dan_file.xlsx"
+
+3. Script sẽ báo số vị trí đã cập nhật cho từng dashboard.
+4. Cả hai file index.html trong hai thư mục con đã được ghi đè với dữ liệu
+   mới. Không cần chỉnh sửa gì thêm.
+
+Bước triển khai lên Netlify
+-----------------------------
+1. Mở https://app.netlify.com/drop
+2. Kéo toàn bộ thư mục (không phải từng file riêng lẻ) vào trang này.
+3. Netlify sẽ tạo bản triển khai mới trong vài giây.
+
+Nếu muốn giữ đúng tên miền positions.almarecruiting.com đang dùng, hãy mở
+dự án đó trong Netlify, vào mục Deploys, và kéo thả thư mục vào khung triển
+khai thủ công tại đó thay vì dùng Netlify Drop.

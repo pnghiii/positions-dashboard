@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ALMA — Positionsübersicht</title>
+<style>
+  :root{
+    --navy-900:#0f1c3f;
+    --navy-800:#1a2a5e;
+    --blue-600:#2946CA;
+    --gold-400:#f5b93d;
+    --ink-900:#111827;
+    --ink-600:#4b5563;
+    --line:#e6e9f0;
+    --paper:#f6f7fb;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--paper);color:var(--ink-900);
+    font-family:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;
+  }
+  .topbar{background:#fff;border-bottom:1px solid var(--line);padding:16px 24px;}
+  .topbar img{height:32px;display:block;}
+  .hero{
+    background:linear-gradient(135deg,var(--navy-900) 0%,var(--navy-800) 100%);
+    color:#fff;padding:56px 24px 48px;text-align:center;
+  }
+  .hero h1{margin:0 0 10px;font-size:clamp(24px,4vw,36px);font-weight:800;}
+  .hero p{margin:0;color:#c7cee8;font-size:15px;}
+  main{max-width:900px;margin:0 auto;padding:40px 24px 80px;}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
+  .card{
+    background:#fff;border:1px solid var(--line);border-radius:14px;
+    padding:26px;text-decoration:none;color:inherit;
+    box-shadow:0 1px 2px rgba(16,24,60,.04),0 6px 20px rgba(16,24,60,.06);
+    transition:transform .15s ease, box-shadow .15s ease;
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .card:hover{transform:translateY(-2px);box-shadow:0 4px 6px rgba(16,24,60,.05),0 14px 28px rgba(16,24,60,.09);}
+  .card h2{margin:0;font-size:19px;font-weight:800;}
+  .card p{margin:0;font-size:13.5px;color:var(--ink-600);line-height:1.5;}
+  .card .go{font-size:13.5px;font-weight:700;color:var(--blue-600);}
+  .company-footer{background:#232c34;padding:22px 24px;margin-top:20px;}
+  .company-footer-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+  .company-footer img{height:28px;display:block;}
+  .company-footer .cf-name{color:#fff;font-weight:800;font-size:14.5px;margin-bottom:3px;}
+  .company-footer .cf-line{color:#8b96ab;font-size:13px;}
+  .company-footer .cf-line a{color:#8b96ab;text-decoration:none;}
+  .company-footer .cf-line a:hover{text-decoration:underline;}
+  .company-footer .cf-sep{margin:0 8px;color:#4a5563;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <img src="alma-logo.png" alt="ALMA">
+</div>
+
+<div class="hero">
+  <h1>Positionsübersicht</h1>
+  <p>Wähle ein Programm, um die aktuell offenen Positionen zu sehen</p>
+</div>
+
+<main>
+  <div class="cards">
+    <a class="card" href="ausbildung/">
+      <h2>Ausbildung</h2>
+      <p>Duale Ausbildungspositionen in Deutschland — Gesundheit &amp; Pflege, Handel &amp; Service, Technik &amp; Druck.</p>
+      <span class="go">Positionen ansehen →</span>
+    </a>
+    <a class="card" href="18b-19c-16d/">
+      <h2>§18b, §19c &amp; §16d</h2>
+      <p>Fachkraft-Positionen im Rahmen der Aufenthaltstitel §18b, §19c und §16d.</p>
+      <span class="go">Positionen ansehen →</span>
+    </a>
+  </div>
+</main>
+
+<div class="company-footer">
+  <div class="company-footer-inner">
+    <img src="alma-logo-white.png" alt="ALMA">
+    <div>
+      <div class="cf-name">Alma Recruiting GmbH</div>
+      <div class="cf-line">Christinenstraße 6, 10119 Berlin</div>
+      <div class="cf-line"><a href="mailto:recruiting@almarecruiting.com">recruiting@almarecruiting.com</a><span class="cf-sep">·</span><a href="tel:+4930220118550">+49 30 220 118 550</a></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
