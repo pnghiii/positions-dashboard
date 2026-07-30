@@ -100,6 +100,11 @@ where id = (select id from auth.users where email = 'ban@almarecruiting.com');
 
 ## 3. Edge Function quản trị đối tác (`admin-users`)
 
+Dự án Supabase tạo mới hiện dùng hệ khoá publishable và secret thay cho anon
+và service_role cũ, nên đoạn code dưới đây đọc khoá từ hai biến môi trường
+mới (`SUPABASE_PUBLISHABLE_KEYS`, `SUPABASE_SECRET_KEYS`), Supabase tự cấp
+sẵn, không cần bạn tự khai báo gì thêm.
+
 Vào mục Edge Functions trong Supabase, tạo function tên `admin-users`, dán nội
 dung sau:
 
@@ -107,8 +112,8 @@ dung sau:
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-const ANON_KEY     = Deno.env.get("SUPABASE_ANON_KEY")!;
-const SERVICE_KEY  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const ANON_KEY     = JSON.parse(Deno.env.get("SUPABASE_PUBLISHABLE_KEYS") || "{}")["default"];
+const SERVICE_KEY  = JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") || "{}")["default"];
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
