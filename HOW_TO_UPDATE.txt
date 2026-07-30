@@ -6,9 +6,16 @@ Cấu trúc thư mục
 index.html                  Trang chọn chương trình
 ausbildung/index.html       Dashboard Ausbildung (98 vị trí)
 18b-19c-16d/index.html      Dashboard §18b, 19c, 16d
+admin/index.html            Trang quản lý đối tác, chỉ admin vào được
 alma-logo.png               Logo dùng cho phần đầu trang
 alma-logo-white.png         Logo dùng cho phần chân trang
+auth-gate.js                Lớp đăng nhập dùng chung (bản Supabase)
+config.js                   Chứa địa chỉ và anon key của dự án Supabase
 generate_dashboards.py      Script cập nhật dữ liệu cho cả hai dashboard
+
+Đăng nhập hiện dùng Supabase, không còn dùng Netlify Identity nữa. Xem chi
+tiết cách thiết lập trong SUPABASE_USER_MANAGEMENT.md. Nếu Identity của
+Netlify đã từng được bật, tắt đi cũng được vì không còn dùng đến.
 
 Mỗi dashboard tự chứa toàn bộ dữ liệu vị trí ngay trong file index.html,
 không cần file CSV rời.
