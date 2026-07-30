@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quản lý đối tác — ALMA</title>
+<style>
+  :root{
+    --navy-900:#0f1c3f;--navy-800:#1a2a5e;--blue-600:#2946CA;
+    --ink-900:#111827;--ink-600:#4b5563;--line:#e6e9f0;--paper:#f6f7fb;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink-900);font-family:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;}
+  .topbar{background:#fff;border-bottom:1px solid var(--line);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;}
+  .topbar img{height:28px;}
+  .topbar a{font-size:13.5px;color:var(--blue-600);text-decoration:none;font-weight:600;}
+  main{max-width:960px;margin:0 auto;padding:30px 24px 80px;}
+  h1{font-size:20px;font-weight:800;margin:0 0 20px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:22px;}
+  .invite-form{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;}
+  .invite-form .field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:160px;}
+  .invite-form label{font-size:12.5px;font-weight:600;color:var(--ink-600);}
+  .invite-form input{padding:8px 10px;border:1px solid var(--line);border-radius:7px;font-size:13.5px;}
+  .btn{background:var(--blue-600);color:#fff;border:none;border-radius:7px;padding:9px 16px;font-size:13.5px;font-weight:700;cursor:pointer;}
+  .btn:hover{background:#22389e;}
+  .btn.danger{background:#c0362c;}
+  .btn.danger:hover{background:#9c2a22;}
+  .btn.small{padding:6px 10px;font-size:12.5px;}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  th{text-align:left;color:var(--ink-600);font-size:12px;text-transform:uppercase;letter-spacing:.3px;padding:8px;border-bottom:1px solid var(--line);}
+  td{padding:10px 8px;border-bottom:1px solid var(--line);}
+  select{padding:5px 8px;border:1px solid var(--line);border-radius:6px;font-size:13px;}
+  .msg{font-size:13px;margin-top:10px;display:none;}
+  .msg.error{color:#c0362c;}
+  .msg.ok{color:#1a7f45;}
+  .empty{color:var(--ink-600);font-size:13.5px;padding:20px 0;text-align:center;}
+  #notAdmin{max-width:420px;margin:80px auto;text-align:center;color:var(--ink-600);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <img src="/alma-logo.png" alt="ALMA">
+  <a href="/">← Về trang chọn chương trình</a>
+</div>
+
+<main id="mainContent" style="display:none;">
+  <h1>Quản lý đối tác</h1>
+
+  <div class="card">
+    <div class="invite-form">
+      <div class="field">
+        <label>Email đối tác</label>
+        <input type="email" id="inviteEmail" placeholder="ten@doitac.com">
+      </div>
+      <div class="field">
+        <label>Tên đối tác</label>
+        <input type="text" id="inviteFullName" placeholder="Nguyễn Văn A">
+      </div>
+      <div class="field">
+        <label>Công ty</label>
+        <input type="text" id="inviteCompany" placeholder="Tên công ty">
+      </div>
+      <button class="btn" id="inviteBtn">Mời đối tác</button>
+    </div>
+    <div class="msg" id="inviteMsg"></div>
+  </div>
+
+  <div class="card">
+    <table id="usersTable">
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Tên</th>
+          <th>Công ty</th>
+          <th>Vai trò</th>
+          <th>Đăng nhập gần nhất</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="usersBody"></tbody>
+    </table>
+    <div class="empty" id="emptyState" style="display:none;">Chưa có đối tác nào.</div>
+  </div>
+</main>
+
+<div id="notAdmin" style="display:none;">
+  <b>Trang này chỉ dành cho quản trị viên.</b>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="/config.js"></script>
+<script src="/auth-gate.js"></script>
+<script>
+(function () {
+  function fmtDate(d) {
+    if (!d) return '—';
+    try { return new Date(d).toLocaleString('vi-VN'); } catch (e) { return d; }
+  }
+
+  function getSb() {
+    return (window.almaAuth && window.almaAuth.supabase) || null;
+  }
+
+  async function callAdminApi(action, payload) {
+    var sb = getSb();
+    var sessionResult = await sb.auth.getSession();
+    var session = sessionResult.data.session;
+    if (!session) throw new Error('Chưa đăng nhập');
+    var res = await fetch(window.SB_CONFIG.url + '/functions/v1/admin-users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': window.SB_CONFIG.anonKey,
+        'Authorization': 'Bearer ' + session.access_token
+      },
+      body: JSON.stringify(Object.assign({ action: action }, payload || {}))
+    });
+    var out = await res.json().catch(function () { return { error: 'Phản hồi không hợp lệ' }; });
+    if (!res.ok) throw new Error(out.error || ('HTTP ' + res.status));
+    return out;
+  }
+
+  function showMsg(el, text, isError) {
+    el.textContent = text;
+    el.className = 'msg ' + (isError ? 'error' : 'ok');
+    el.style.display = 'block';
+  }
+
+  async function loadUsers() {
+    var body = document.getElementById('usersBody');
+    var empty = document.getElementById('emptyState');
+    body.innerHTML = '';
+    try {
+      var result = await callAdminApi('list');
+      var users = result.users || [];
+      if (!users.length) { empty.style.display = 'block'; return; }
+      empty.style.display = 'none';
+      users.forEach(function (u) {
+        var tr = document.createElement('tr');
+
+        var roleSelect = document.createElement('select');
+        ['user', 'admin'].forEach(function (r) {
+          var opt = document.createElement('option');
+          opt.value = r; opt.textContent = r === 'admin' ? 'Quản trị viên' : 'Đối tác';
+          if (u.role === r) opt.selected = true;
+          roleSelect.appendChild(opt);
+        });
+        roleSelect.addEventListener('change', async function () {
+          try {
+            await callAdminApi('update', { id: u.id, role: roleSelect.value });
+          } catch (e) {
+            alert('Không đổi được vai trò: ' + e.message);
+            loadUsers();
+          }
+        });
+
+        var delBtn = document.createElement('button');
+        delBtn.className = 'btn danger small';
+        delBtn.textContent = 'Xoá';
+        delBtn.addEventListener('click', async function () {
+          if (!confirm('Xoá tài khoản ' + u.email + '?')) return;
+          try {
+            await callAdminApi('delete', { id: u.id });
+            loadUsers();
+          } catch (e) {
+            alert('Không xoá được: ' + e.message);
+          }
+        });
+
+        tr.innerHTML =
+          '<td>' + u.email + '</td>' +
+          '<td>' + (u.full_name || '—') + '</td>' +
+          '<td>' + (u.company_name || '—') + '</td>' +
+          '<td class="role-cell"></td>' +
+          '<td>' + fmtDate(u.last_sign_in_at) + '</td>' +
+          '<td class="action-cell"></td>';
+        tr.querySelector('.role-cell').appendChild(roleSelect);
+        tr.querySelector('.action-cell').appendChild(delBtn);
+        body.appendChild(tr);
+      });
+    } catch (e) {
+      empty.style.display = 'block';
+      empty.textContent = 'Không tải được danh sách: ' + e.message;
+    }
+  }
+
+  document.getElementById('inviteBtn').addEventListener('click', async function () {
+    var email = document.getElementById('inviteEmail').value.trim();
+    var fullName = document.getElementById('inviteFullName').value.trim();
+    var company = document.getElementById('inviteCompany').value.trim();
+    var msg = document.getElementById('inviteMsg');
+    if (!email) { showMsg(msg, 'Cần nhập email.', true); return; }
+    try {
+      await callAdminApi('invite', { email: email, full_name: fullName, company_name: company });
+      showMsg(msg, 'Đã gửi lời mời đến ' + email + '.', false);
+      document.getElementById('inviteEmail').value = '';
+      document.getElementById('inviteFullName').value = '';
+      document.getElementById('inviteCompany').value = '';
+      loadUsers();
+    } catch (e) {
+      showMsg(msg, 'Không mời được: ' + e.message, true);
+    }
+  });
+
+  // Chờ lớp đăng nhập xác định xong trạng thái, rồi kiểm tra quyền admin.
+  var checkedOnce = false;
+  var waitForAuth = setInterval(async function () {
+    var sb = getSb();
+    if (!sb) return;
+    var sessionResult = await sb.auth.getSession();
+    var session = sessionResult.data.session;
+    if (!session) return; // vẫn đang ở màn hình đăng nhập, chờ tiếp
+    if (checkedOnce) return;
+    checkedOnce = true;
+    clearInterval(waitForAuth);
+
+    var prof = await sb.from('profiles').select('role').eq('id', session.user.id).single();
+    if (prof.data && prof.data.role === 'admin') {
+      document.getElementById('mainContent').style.display = 'block';
+      loadUsers();
+    } else {
+      document.getElementById('notAdmin').style.display = 'block';
+    }
+  }, 300);
+})();
+</script>
+</body>
+</html>
