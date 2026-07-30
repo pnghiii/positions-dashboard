@@ -44,10 +44,10 @@ import openpyxl
 SCRIPT_DIR = Path(__file__).resolve().parent
 
 AUSBILDUNG_SHEET = "Alma Positions | Ausbildung"
-AUSBILDUNG_HTML = SCRIPT_DIR / "ausbildung" / "index.html"
+AUSBILDUNG_HTML = SCRIPT_DIR / "ausbildung" / "ausbildung.html"
 
 FACHKRAFT_SHEET = "Alma Positions | 18b, 19c, 16d"
-FACHKRAFT_HTML = SCRIPT_DIR / "18b-19c-16d" / "index.html"
+FACHKRAFT_HTML = SCRIPT_DIR / "18b-19c-16d" / "18b-19c-16d.html"
 
 
 def norm(text):
