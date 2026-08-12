@@ -1,17 +1,22 @@
 HƯỚNG DẪN CẬP NHẬT VÀ TRIỂN KHAI
 ==================================
 
-Cấu trúc thư mục
------------------
+Cấu trúc file (dạng phẳng, không dùng thư mục con)
+-----------------------------------------------------
 index.html                  Trang chọn chương trình
-ausbildung/index.html       Dashboard Ausbildung (98 vị trí)
-18b-19c-16d/index.html      Dashboard §18b, 19c, 16d
-admin/index.html            Trang quản lý đối tác, chỉ admin vào được
-alma-logo.png               Logo dùng cho phần đầu trang
-alma-logo-white.png         Logo dùng cho phần chân trang
-auth-gate.js                Lớp đăng nhập dùng chung (bản Supabase)
-config.js                   Chứa địa chỉ và anon key của dự án Supabase
-generate_dashboards.py      Script cập nhật dữ liệu cho cả hai dashboard
+ausbildung.html              Dashboard Ausbildung (98 vị trí)
+18b-19c-16d.html             Dashboard §18b, 19c, 16d
+admin.html                   Trang quản lý đối tác, chỉ admin vào được
+alma-logo.png                Logo dùng cho phần đầu trang
+alma-logo-white.png          Logo dùng cho phần chân trang
+auth-gate.js                 Lớp đăng nhập dùng chung (bản Supabase)
+config.js                    Chứa địa chỉ và anon key của dự án Supabase
+generate_dashboards.py       Script cập nhật dữ liệu cho cả hai dashboard
+
+Lưu ý: dùng file phẳng (ausbildung.html) thay vì thư mục con
+(ausbildung/index.html) vì giao diện tải file trên GitHub không nhận đúng
+khi kéo cả thư mục có nhiều file cùng tên index.html. Khi tải file lên
+GitHub, kéo từng file một, không kéo cả thư mục.
 
 Đăng nhập hiện dùng Supabase, không còn dùng Netlify Identity nữa. Xem chi
 tiết cách thiết lập trong SUPABASE_USER_MANAGEMENT.md. Nếu Identity của
@@ -43,15 +48,13 @@ Bước cập nhật dữ liệu
    python3 generate_dashboards.py --xlsx "duong_dan_file.xlsx"
 
 3. Script sẽ báo số vị trí đã cập nhật cho từng dashboard.
-4. Cả hai file index.html trong hai thư mục con đã được ghi đè với dữ liệu
+4. Hai file ausbildung.html và 18b-19c-16d.html đã được ghi đè với dữ liệu
    mới. Không cần chỉnh sửa gì thêm.
 
-Bước triển khai lên Netlify
+Bước triển khai lên GitHub
 -----------------------------
-1. Mở https://app.netlify.com/drop
-2. Kéo toàn bộ thư mục (không phải từng file riêng lẻ) vào trang này.
-3. Netlify sẽ tạo bản triển khai mới trong vài giây.
-
-Nếu muốn giữ đúng tên miền positions.almarecruiting.com đang dùng, hãy mở
-dự án đó trong Netlify, vào mục Deploys, và kéo thả thư mục vào khung triển
-khai thủ công tại đó thay vì dùng Netlify Drop.
+1. Vào kho GitHub đang dùng, bấm Add file, chọn Upload files.
+2. Kéo từng file một vào (không kéo cả thư mục), xác nhận ghi đè các file
+   trùng tên, bấm Commit changes.
+3. Netlify sẽ tự động phát hiện commit mới và triển khai lại, không cần
+   thao tác gì thêm trên Netlify.

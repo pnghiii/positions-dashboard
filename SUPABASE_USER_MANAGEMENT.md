@@ -224,7 +224,7 @@ Ba file mới đã thay thế cho phần Netlify Identity trước đó:
 |---|---|
 | config.js | Chứa địa chỉ dự án Supabase và anon key, bạn cần điền vào |
 | auth-gate.js | Lớp đăng nhập, đã viết lại để dùng Supabase thay vì Netlify Identity, vẫn giữ nguyên giao diện đã thiết kế trước đó |
-| admin/index.html | Trang quản lý đối tác, chỉ admin mới vào được, để mời, xoá, đổi vai trò |
+| admin.html | Trang quản lý đối tác, chỉ admin mới vào được, để mời, xoá, đổi vai trò |
 
 Bạn cần điền đúng hai giá trị vào config.js, lấy từ Supabase, mục Project
 Settings > API:
@@ -248,8 +248,8 @@ window.SB_CONFIG = { url: "https://<mã-dự-án>.supabase.co", anonKey: "<anon-
    và thêm cùng địa chỉ kèm /** vào Redirect URLs. Bỏ qua bước này thì email
    mời và đặt lại mật khẩu sẽ trỏ nhầm về localhost.
 7. Tải toàn bộ thư mục lên Netlify hoặc kho GitHub như các lần trước, lần này
-   có thêm config.js và admin/index.html.
-8. Đăng nhập bằng tài khoản admin của bạn, vào đường dẫn /admin/, mời từng đối
+   có thêm config.js và admin.html.
+8. Đăng nhập bằng tài khoản admin của bạn, vào đường dẫn /admin.html, mời từng đối
    tác bằng email.
 
 ---

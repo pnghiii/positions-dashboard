@@ -44,10 +44,10 @@ import openpyxl
 SCRIPT_DIR = Path(__file__).resolve().parent
 
 AUSBILDUNG_SHEET = "Alma Positions | Ausbildung"
-AUSBILDUNG_HTML = SCRIPT_DIR / "ausbildung" / "ausbildung.html"
+AUSBILDUNG_HTML = SCRIPT_DIR / "ausbildung.html"
 
 FACHKRAFT_SHEET = "Alma Positions | 18b, 19c, 16d"
-FACHKRAFT_HTML = SCRIPT_DIR / "18b-19c-16d" / "18b-19c-16d.html"
+FACHKRAFT_HTML = SCRIPT_DIR / "18b-19c-16d.html"
 
 
 def norm(text):
@@ -302,11 +302,11 @@ def extract_fachkraft_rows(ws_values, ws_formulas):
             "salary_posttax": money(get(r, "salary_posttax")),
             "benefits_notes": get(r, "benefits_notes"),
             "housing": get(r, "housing"),
-            "rent_price": get(r, "rent_price"),
+            "rent_price": clean_num(get(r, "rent_price")),
             "working_hours": get(r, "working_hours"),
             "day_off": get(r, "day_off"),
             "vacation_days": clean_num(get(r, "vacation_days")),
-            "cost_of_living": get(r, "cost_of_living"),
+            "cost_of_living": clean_num(get(r, "cost_of_living")),
             "category": category_of(get(r, "industry")),
         })
     return rows
