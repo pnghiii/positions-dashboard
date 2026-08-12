@@ -11,9 +11,15 @@
   }
   *{box-sizing:border-box;}
   body{margin:0;background:var(--paper);color:var(--ink-900);font-family:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;}
-  .topbar{background:#fff;border-bottom:1px solid var(--line);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;}
-  .topbar img{height:28px;}
-  .topbar a{font-size:13.5px;color:var(--blue-600);text-decoration:none;font-weight:600;}
+  .topbar{background:#fff;border-bottom:1px solid var(--line);padding:10px 24px;display:flex;align-items:center;justify-content:center;position:relative;}
+  .topbar img{height:24px;}
+  .topbar a{
+    position:absolute;left:24px;top:50%;transform:translateY(-50%);
+    font-size:13px;color:var(--blue-600);text-decoration:none;font-weight:700;
+    padding:6px 12px;border:1.5px solid var(--blue-600);border-radius:8px;
+    transition:background .15s ease,color .15s ease;
+  }
+  .topbar a:hover{background:var(--blue-600);color:#fff;}
   main{max-width:960px;margin:0 auto;padding:30px 24px 80px;}
   h1{font-size:20px;font-weight:800;margin:0 0 20px;}
   .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:22px;}
