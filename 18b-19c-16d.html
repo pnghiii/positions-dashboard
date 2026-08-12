@@ -335,13 +335,18 @@
         .perks-lines {
             display: flex;
             flex-direction: column;
-            gap: 3px;
-            margin-bottom: 0.75rem;
+            gap: 6px;
+            margin-bottom: 0.85rem;
         }
 
-        .perk-line {
+        .perk-box {
+            background: #f0f3f9;
+            border: 1px solid #dde3ed;
+            border-radius: 8px;
+            padding: 7px 10px;
             font-size: 0.82rem;
-            color: #555;
+            font-weight: 600;
+            color: #3a4a6b;
             line-height: 1.35;
         }
 
@@ -1126,12 +1131,13 @@
                     const locationStr = [pos.city, pos.state].filter(Boolean).join(', ');
                     const badgeClass = si.cls;
                     const statusLabel = si.label;
-                    const houseLine = housingLine(pos);
+                    const houseLine = housingStatusLine(pos);
+                    const mealLine = mealStatusLine(pos);
 
-                    const perksHtml = (houseLine || pos.benefits_notes) ? `
+                    const perksHtml = (houseLine || mealLine) ? `
                         <div class="perks-lines">
-                            ${houseLine ? `<div class="perk-line">🏠 ${escapeHtml(houseLine)}</div>` : ''}
-                            ${pos.benefits_notes ? `<div class="perk-line">🍽️ ${escapeHtml(pos.benefits_notes)}</div>` : ''}
+                            ${houseLine ? `<div class="perk-box">🏠 ${escapeHtml(houseLine)}</div>` : ''}
+                            ${mealLine ? `<div class="perk-box">🍽️ ${escapeHtml(mealLine)}</div>` : ''}
                         </div>` : '';
 
                     card.innerHTML = `
@@ -1213,7 +1219,6 @@
             ]);
 
             renderDetailGroup('benefits-list-new', [
-                { label: 'Nhà ở', value: housingLine(pos) },
                 { label: 'Phúc lợi, Thưởng & Ghi chú', value: pos.benefits_notes, isFull: true },
                 { label: 'Chi phí sinh hoạt hằng tháng', value: pos.cost_of_living },
             ]);
@@ -1255,13 +1260,49 @@
             return div.innerHTML;
         }
 
-        // Combine "Nhà ở" (included / not included, etc.) with "Giá thuê nhà"
-        // into a single readable line, e.g. "Đã bao gồm (~€350)".
-        function housingLine(pos) {
-            const parts = [];
-            if (pos.housing) parts.push(pos.housing);
-            if (pos.rent_price) parts.push('(~€' + pos.rent_price + ')');
-            return parts.join(' ');
+        // Chuẩn hoá số tiền, tránh lặp dấu € nếu giá trị trong sheet đã có sẵn
+        // dấu €, ví dụ "€400-€600".
+        function formatMonthlyAmount(raw) {
+            if (!raw) return '';
+            const s = String(raw).trim();
+            if (!s || s === '0') return '';
+            return (s.startsWith('€') ? '~' + s : '~€' + s) + '/tháng';
+        }
+
+        // Câu chuẩn cho tình trạng nhà ở. Ưu tiên đọc đúng câu "Đã/CHƯA bao
+        // gồm nhà ở" tường minh trong Phúc lợi nếu có, vì trường "Nhà ở" đôi
+        // khi ghi mô tả chung chung (ví dụ "Doanh nghiệp hỗ trợ") mà không
+        // nói rõ có bao gồm hay không, thậm chí có thể mâu thuẫn với Phúc lợi.
+        function housingStatusLine(pos) {
+            const text = pos.benefits_notes || '';
+            let negative = null;
+            if (text) {
+                const clauses = text.split(/\s+-\s+|\n+/).map(c => c.trim()).filter(Boolean);
+                const houseClause = clauses.find(c => /nhà ở/i.test(c));
+                if (houseClause) negative = /chưa|không/i.test(houseClause);
+            }
+            if (negative === null) {
+                if (!pos.housing) return '';
+                negative = /chưa|không/i.test(pos.housing);
+            }
+            const base = negative ? 'CHƯA bao gồm nhà ở' : 'Đã bao gồm nhà ở';
+            const amount = formatMonthlyAmount(pos.rent_price);
+            return amount ? `${base} (${amount})` : base;
+        }
+
+        // Câu chuẩn cho chi phí ăn uống, trích từ đoạn nhắc đến "ăn uống"
+        // trong "Phúc lợi, Thưởng & Ghi chú", bỏ qua các phúc lợi khác.
+        function mealStatusLine(pos) {
+            const text = pos.benefits_notes || '';
+            if (!text) return '';
+            const clauses = text.split(/\s+-\s+|\n+/).map(c => c.trim()).filter(Boolean);
+            const mealClause = clauses.find(c => /ăn uống/i.test(c));
+            if (!mealClause) return '';
+            const negative = /chưa|không/i.test(mealClause);
+            const base = negative ? 'CHƯA bao gồm chi phí ăn uống' : 'Đã bao gồm chi phí ăn uống';
+            const amtMatch = mealClause.match(/€\s*[\d.,]+(?:\s*-\s*€?\s*[\d.,]+)?/);
+            const amount = amtMatch ? formatMonthlyAmount(amtMatch[0].replace(/€\s*/, '')) : '';
+            return amount ? `${base} (${amount})` : base;
         }
 
         // Event listeners
