@@ -1220,6 +1220,8 @@
 
             renderDetailGroup('benefits-list-new', [
                 { label: 'Phúc lợi, Thưởng & Ghi chú', value: pos.benefits_notes, isFull: true },
+                { label: 'Nhà ở', value: pos.housing },
+                { label: 'Giá thuê nhà', value: pos.rent_price },
                 { label: 'Chi phí sinh hoạt hằng tháng', value: pos.cost_of_living },
             ]);
 
@@ -1262,36 +1264,23 @@
 
         // Chuẩn hoá số tiền, tránh lặp dấu € nếu giá trị trong sheet đã có sẵn
         // dấu €, ví dụ "€400-€600".
-        function formatMonthlyAmount(raw) {
+        function formatAmount(raw) {
             if (!raw) return '';
             const s = String(raw).trim();
             if (!s || s === '0') return '';
-            return (s.startsWith('€') ? '~' + s : '~€' + s) + '/tháng';
+            return s.startsWith('€') ? s : '€' + s;
         }
 
-        // Câu chuẩn cho tình trạng nhà ở. Ưu tiên đọc đúng câu "Đã/CHƯA bao
-        // gồm nhà ở" tường minh trong Phúc lợi nếu có, vì trường "Nhà ở" đôi
-        // khi ghi mô tả chung chung (ví dụ "Doanh nghiệp hỗ trợ") mà không
-        // nói rõ có bao gồm hay không, thậm chí có thể mâu thuẫn với Phúc lợi.
+        // Dòng nhà ở trên thẻ: lấy nguyên câu từ cột "Nhà ở" trong sheet,
+        // ghép thêm giá thuê (cột "Giá thuê nhà") trong ngoặc nếu có.
         function housingStatusLine(pos) {
-            const text = pos.benefits_notes || '';
-            let negative = null;
-            if (text) {
-                const clauses = text.split(/\s+-\s+|\n+/).map(c => c.trim()).filter(Boolean);
-                const houseClause = clauses.find(c => /nhà ở/i.test(c));
-                if (houseClause) negative = /chưa|không/i.test(houseClause);
-            }
-            if (negative === null) {
-                if (!pos.housing) return '';
-                negative = /chưa|không/i.test(pos.housing);
-            }
-            const base = negative ? 'CHƯA bao gồm nhà ở' : 'Đã bao gồm nhà ở';
-            const amount = formatMonthlyAmount(pos.rent_price);
-            return amount ? `${base} (${amount})` : base;
+            if (!pos.housing) return '';
+            const amount = formatAmount(pos.rent_price);
+            return amount ? `${pos.housing} (${amount})` : pos.housing;
         }
 
         // Câu chuẩn cho chi phí ăn uống, trích từ đoạn nhắc đến "ăn uống"
-        // trong "Phúc lợi, Thưởng & Ghi chú", bỏ qua các phúc lợi khác.
+        // trong "Phúc lợi, Thưởng & Ghi chú". Nếu không nhắc đến thì bỏ qua.
         function mealStatusLine(pos) {
             const text = pos.benefits_notes || '';
             if (!text) return '';
@@ -1301,7 +1290,7 @@
             const negative = /chưa|không/i.test(mealClause);
             const base = negative ? 'CHƯA bao gồm chi phí ăn uống' : 'Đã bao gồm chi phí ăn uống';
             const amtMatch = mealClause.match(/€\s*[\d.,]+(?:\s*-\s*€?\s*[\d.,]+)?/);
-            const amount = amtMatch ? formatMonthlyAmount(amtMatch[0].replace(/€\s*/, '')) : '';
+            const amount = amtMatch ? formatAmount(amtMatch[0].replace(/€\s*/, '')) : '';
             return amount ? `${base} (${amount})` : base;
         }
 
